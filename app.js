@@ -2,16 +2,16 @@ import express, { json } from "express"; // require -> commonJS
 import "dotenv/config";
 
 import { corsMiddleware } from "./src/middlewares/cors.js";
-import { transactionRouter } from "./src/routes/transactions.js";
-import { TransactionModel } from "./src/models/mysql/transaction.js";
 
-export const createApp = ({ model }) => {
+import { transactionRouter } from "./src/routes/transactions.js";
+
+export const createApp = () => {
 	const app = express();
 	app.use(json());
 	app.use(corsMiddleware());
 	app.disable("x-powered-by");
 
-	app.use("/transactions", transactionRouter({ transactionModel: model }));
+	app.use("/transactions", transactionRouter());
 
 	const PORT = process.env.PORT ?? 1234;
 
@@ -20,4 +20,4 @@ export const createApp = ({ model }) => {
 	});
 };
 
-createApp({ model: TransactionModel });
+createApp();

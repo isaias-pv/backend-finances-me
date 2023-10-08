@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { TransactionController } from './../controllers/transactions.js';
 
-export const transactionRouter = ({ transactionModel }) => {
+export const transactionRouter = () => {
 	const router = Router();
 
-	const model = new TransactionController({ transactionModel });
+	const controller = new TransactionController();
 
-	router.get("/", model.getAll);
+	router.get("/", controller.getAll);
 
 	return router;
 };
