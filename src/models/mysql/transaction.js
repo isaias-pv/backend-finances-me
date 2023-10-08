@@ -60,4 +60,44 @@ export class TransactionModel {
 
 		return transactions;
 	}
+
+
+	static async getAvailable() {
+		const [transactions] = await connection.query(
+			`SELECT SUM(balance) AS available FROM accounts;`
+		);
+
+		return transactions;
+	}
+
+	static async getBalanceByBank() {
+		const [transactions] = await connection.query(
+			`SELECT b.name AS bank, SUM(a.balance) AS balance
+				FROM banks b
+				JOIN accounts a ON b.bank_id = a.bank_id
+				GROUP BY b.name;`
+		);
+
+		return transactions;
+	}
+
+	static async getBalanceByAccount() {
+		const [transactions] = await connection.query(
+			`SELECT a.name AS account, a.balance AS balance FROM accounts a;`
+		);
+
+		return transactions;
+	}
+
+	static async getIncomeExpenseByTransaction() {
+		const [transactions] = await connection.query(
+			`SELECT tt.name AS type_transaction, COUNT(t.transaction_id) AS total_transactions, SUM(t.amount) AS total_amount
+				FROM transactions t
+				JOIN types_transactions tt ON t.type_transaction_id = tt.type_transaction_id
+				GROUP BY tt.name;s`
+		);
+
+		return transactions;
+	}
+
 }
