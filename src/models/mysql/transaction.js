@@ -63,7 +63,7 @@ export class TransactionModel {
 
 
 	static async getAvailable() {
-		const [transactions] = await connection.query(
+		const [[transactions]] = await connection.query(
 			`SELECT SUM(balance) AS available FROM accounts;`
 		);
 
@@ -94,7 +94,7 @@ export class TransactionModel {
 			`SELECT tt.name AS type_transaction, COUNT(t.transaction_id) AS total_transactions, SUM(t.amount) AS total_amount
 				FROM transactions t
 				JOIN types_transactions tt ON t.type_transaction_id = tt.type_transaction_id
-				GROUP BY tt.name;s`
+				GROUP BY tt.name;`
 		);
 
 		return transactions;
