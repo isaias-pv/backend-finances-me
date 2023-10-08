@@ -21,4 +21,24 @@ export class TransactionController {
 		const transactions = await this.model.getRevenuesAndExpendituresGeneral();
 		res.json(transactions);
 	};
+
+	getAvailable = async (req, res) => { 
+		const transactions = await this.model.getAvailable();
+		res.json(transactions);
+	};
+
+	getBalanceByBank = async (req, res) => { 
+		const transactions = await this.model.getBalanceByBank();
+		res.json(transactions);
+	};
+
+	getBalanceByAccount = async (req, res) => { 
+		const transactions = await this.model.getBalanceByAccount();
+		res.json(transactions);
+	};
+
+	getIncomeExpenseByTransaction = async (req, res) => { 
+		const transactions = await this.model.getIncomeExpenseByTransaction();
+		res.json(transactions);
+	};
 }
