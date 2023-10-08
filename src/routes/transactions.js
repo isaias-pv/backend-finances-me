@@ -7,6 +7,8 @@ export const transactionRouter = () => {
 	const controller = new TransactionController();
 
 	router.get("/", controller.getAll);
+	router.get("/incomes-expenses-by-accounts", controller.getIncomeAndExpenseByAccounts);
+	router.get("/incomes-expenses", controller.getRevenuesAndExpendituresGeneral);
 
 	return router;
 };
