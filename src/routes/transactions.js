@@ -14,5 +14,7 @@ export const transactionRouter = () => {
 	router.get("/balance-by-account", controller.getBalanceByAccount);
 	router.get("/incomes-expenses-by-transactions", controller.getIncomeExpenseByTransaction);
 
+	router.post("/create", controller.create);
+
 	return router;
 };

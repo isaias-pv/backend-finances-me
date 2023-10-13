@@ -1,20 +1,19 @@
-import mysql from "mysql2/promise";
-
-const DEFAULT_CONFIG = {
-	host: "localhost",
-	user: "root",
-	port: 3306,
-	password: "2133002Isaias_",
-	database: "finance_db",
-};
-const connectionString = process.env.DATABASE_URL ?? DEFAULT_CONFIG;
-
-const connection = await mysql.createConnection(connectionString);
+import { connection } from "./query.js";
 
 export class TransactionModel {
 	static async getAll() {
 		const [transactions] = await connection.query(
-			"SELECT * FROM transactions;"
+			`SELECT t.*, 
+				tt.name as type_transaction_name,
+				ad.name as account_destination,
+				ao.name as account_origin,
+				c.name as concept
+	 		FROM transactions t 
+	 			INNER JOIN types_transactions tt
+	 			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+	 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+	 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
+	 `
 		);
 
 		return transactions;
@@ -34,7 +33,6 @@ export class TransactionModel {
 
 		return transactions;
 	}
-
 
 	static async getRevenuesAndExpendituresGeneral() {
 		const [transactions] = await connection.query(
@@ -60,7 +58,6 @@ export class TransactionModel {
 
 		return transactions;
 	}
-
 
 	static async getAvailable() {
 		const [[transactions]] = await connection.query(
@@ -100,4 +97,11 @@ export class TransactionModel {
 		return transactions;
 	}
 
+	static async create() {
+		const [transaction] = await connection.query(
+			`INSERT INTO transactions (type_transaction_id, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`
+		);
+
+		return transaction;
+	}
 }
