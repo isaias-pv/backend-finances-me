@@ -1,5 +1,6 @@
 import { validate } from "../schemas/transaction.js";
 import { TransactionModel } from "./../models/mysql/transaction.js";
+import { request } from 'express';
 
 export class TransactionController {
 	constructor() {
@@ -8,6 +9,11 @@ export class TransactionController {
 
 	getAll = async (req, res) => {
 		const transactions = await this.model.getAll();
+		res.json(transactions);
+	};
+
+	getTransationById = async (req = request, res) => {
+		const transactions = await this.model.getTransationById(req.params.id);
 		res.json(transactions);
 	};
 
@@ -65,17 +71,29 @@ export class TransactionController {
 				.json({ error: JSON.parse(resultValidation.error.message) });
 		}
 
-		const insertEgress = await this.model.create({ ...resultValidation.data, type_transaction_id: 1 });
+		const insertEgress = await this.model.create({
+			...resultValidation.data,
+			type_transaction_id: 1,
+		});
 
 		if (insertEgress) {
-			const insertIncome = await this.model.create({ ...resultValidation.data, type_transaction_id: 2 });
+			const insertIncome = await this.model.create({
+				...resultValidation.data,
+				type_transaction_id: 2,
+			});
 			if (insertIncome) {
-				return res.status(201).json({ msg: 'Registro ingresado correctamente.'});
+				return res
+					.status(201)
+					.json({ msg: "Registro ingresado correctamente." });
 			}
 
-			return res.status(400).json({ msg: 'Error al ingresar el registro - Ingreso.'});
+			return res
+				.status(400)
+				.json({ msg: "Error al ingresar el registro - Ingreso." });
 		}
 
-		return res.status(400).json({ msg: 'Error al ingresar el registro - Egreso.'});
+		return res
+			.status(400)
+			.json({ msg: "Error al ingresar el registro - Egreso." });
 	};
 }

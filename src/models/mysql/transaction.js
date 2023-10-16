@@ -1,5 +1,5 @@
 import { connection } from "./query.js";
-import { convertDateToSaveDB } from './../../utils/date.js';
+import { convertDateToSaveDB } from "./../../utils/date.js";
 
 export class TransactionModel {
 	static async getAll() {
@@ -15,6 +15,26 @@ export class TransactionModel {
 	 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 	 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
 	 `
+		);
+
+		return transactions;
+	}
+
+	static async getTransationById(id) {
+		const [transactions] = await connection.query(
+			`SELECT t.*, 
+				tt.name as type_transaction_name,
+				ad.name as account_destination,
+				ao.name as account_origin,
+				c.name as concept
+	 		FROM transactions t 
+	 			INNER JOIN types_transactions tt
+	 			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+	 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+	 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
+			WHERE t.transaction_id = ?
+	 `,
+			[id]
 		);
 
 		return transactions;
@@ -107,9 +127,8 @@ export class TransactionModel {
 		account_origin_id,
 		account_destination_id,
 	}) {
+		date_transaction = convertDateToSaveDB(date_transaction);
 
-		date_transaction = convertDateToSaveDB(date_transaction)
-		
 		const [transaction] = await connection.query(
 			`INSERT INTO transactions (type_transaction_id, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`,
 			[
