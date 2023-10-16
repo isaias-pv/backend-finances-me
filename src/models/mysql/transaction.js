@@ -1,4 +1,5 @@
 import { connection } from "./query.js";
+import { convertDateToSaveDB } from './../../utils/date.js';
 
 export class TransactionModel {
 	static async getAll() {
@@ -97,9 +98,29 @@ export class TransactionModel {
 		return transactions;
 	}
 
-	static async create() {
+	static async create({
+		type_transaction_id,
+		date_transaction,
+		amount,
+		concept_id,
+		observation,
+		account_origin_id,
+		account_destination_id,
+	}) {
+
+		date_transaction = convertDateToSaveDB(date_transaction)
+		
 		const [transaction] = await connection.query(
-			`INSERT INTO transactions (type_transaction_id, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`
+			`INSERT INTO transactions (type_transaction_id, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+			[
+				type_transaction_id,
+				date_transaction,
+				amount,
+				concept_id,
+				observation,
+				account_origin_id,
+				account_destination_id,
+			]
 		);
 
 		return transaction;

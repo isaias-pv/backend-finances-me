@@ -46,7 +46,7 @@ export class BankController {
 
 		const account = await this.model.create(result.data);
 
-		return res.status(201).json(account);
+		return res.status(201).json({ mg: 'Banco creado correctamente' });
 	};
 
 	update = async (req, res) => {

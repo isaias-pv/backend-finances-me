@@ -54,7 +54,7 @@ export class AccountController {
 
 		const account = await this.model.create(result.data);
 
-		return res.status(201).json(account);
+		return res.status(201).json({ msg: 'Cuenta creada correctamente' });
 	};
 
 	update = async (req, res) => {

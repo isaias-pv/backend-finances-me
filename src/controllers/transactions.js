@@ -55,4 +55,27 @@ export class TransactionController {
 
 		return res.status(201).json(account);
 	};
+
+	createTransfer = async (req, res) => {
+		const resultValidation = validate(req.body);
+
+		if (!resultValidation.success) {
+			return res
+				.status(400)
+				.json({ error: JSON.parse(resultValidation.error.message) });
+		}
+
+		const insertEgress = await this.model.create({ ...resultValidation.data, type_transaction_id: 1 });
+
+		if (insertEgress) {
+			const insertIncome = await this.model.create({ ...resultValidation.data, type_transaction_id: 2 });
+			if (insertIncome) {
+				return res.status(201).json({ msg: 'Registro ingresado correctamente.'});
+			}
+
+			return res.status(400).json({ msg: 'Error al ingresar el registro - Ingreso.'});
+		}
+
+		return res.status(400).json({ msg: 'Error al ingresar el registro - Egreso.'});
+	};
 }
