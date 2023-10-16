@@ -5,15 +5,15 @@ export class TransactionModel {
 	static async getAll() {
 		const [transactions] = await connection.query(
 			`SELECT t.*, 
-				tt.name as type_transaction_name,
-				ad.name as account_destination,
-				ao.name as account_origin,
-				c.name as concept
-	 		FROM transactions t 
-	 			INNER JOIN types_transactions tt
-	 			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
-	 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
-	 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
+					tt.name as type_transaction_name,
+					ad.name as account_destination,
+					ao.name as account_origin,
+					c.name as concept
+			FROM transactions t 
+					LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+					LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+					LEFT JOIN concepts c ON c.concept_id = t.concept_id
+					INNER JOIN types_transactions tt on tt.type_transaction_id = t.type_transaction_id
 	 `
 		);
 
@@ -23,17 +23,16 @@ export class TransactionModel {
 	static async getTransationById(id) {
 		const [transactions] = await connection.query(
 			`SELECT t.*, 
-				tt.name as type_transaction_name,
-				ad.name as account_destination,
-				ao.name as account_origin,
-				c.name as concept
-	 		FROM transactions t 
-	 			INNER JOIN types_transactions tt
-	 			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
-	 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
-	 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
-			WHERE t.transaction_id = ?
-	 `,
+						tt.name as type_transaction_name,
+						ad.name as account_destination,
+						ao.name as account_origin,
+						c.name as concept
+				FROM transactions t 
+						LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+						LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+						LEFT JOIN concepts c ON c.concept_id = t.concept_id
+						INNER JOIN types_transactions tt on tt.type_transaction_id = t.type_transaction_id
+				WHERE t.transaction_id = ?`,
 			[id]
 		);
 
