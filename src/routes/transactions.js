@@ -7,7 +7,7 @@ export const transactionRouter = () => {
 	const controller = new TransactionController();
 
 	router.get("/", controller.getAll);
-	router.get("/order", controller.getAll);
+	router.get("/order", controller.getAllOrder);
 	router.get("/recents", controller.getRecents);
 	router.get(
 		"/incomes-expenses-by-accounts",

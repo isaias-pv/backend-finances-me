@@ -2,7 +2,6 @@ import { validate } from "../schemas/transaction.js";
 import { TransactionModel } from "./../models/mysql/transaction.js";
 import { request } from 'express';
 import { randomUUID } from 'crypto';
-import * as _ from 'loadsh';
 
 export class TransactionController {
 	constructor() {
@@ -16,7 +15,7 @@ export class TransactionController {
 
 	getAllOrder = async (req, res) => {
 		const transactions = await this.model.getAll();
-		res.json(_.chain(transactions).groupBy().value());
+		res.json(transactions);
 	};
 
 	getRecents = async (req, res) => {
