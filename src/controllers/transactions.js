@@ -16,14 +16,19 @@ export class TransactionController {
 
 	getAllOrder = async (req, res) => {
 		const transactions = await this.model.getAll();
-		const response = {};
+		const response = [];
 
 		transactions.forEach(transaction => {
 			const key = convertDateToSaveDB(transaction.date_transaction);
-			if (Array.isArray(response[key])) {
-				response[key] = [...response[key], transaction];
+
+
+			const i = response.findIndex(item => item.group_key === key);
+			
+			if (i != -1) {
+				response[i].content = [...response[i].content, transaction];
 			} else {
-				response[key] = [];
+				// }
+				response.push({ group_key: key, content: [] });
 			}
 		});
 
