@@ -2,6 +2,7 @@ import { validate } from "../schemas/transaction.js";
 import { TransactionModel } from "./../models/mysql/transaction.js";
 import { request } from 'express';
 import { randomUUID } from 'crypto';
+import * as _ from 'loadsh';
 
 export class TransactionController {
 	constructor() {
@@ -11,6 +12,11 @@ export class TransactionController {
 	getAll = async (req, res) => {
 		const transactions = await this.model.getAll();
 		res.json(transactions);
+	};
+
+	getAllOrder = async (req, res) => {
+		const transactions = await this.model.getAll();
+		res.json(_.chain(transactions).groupBy().value());
 	};
 
 	getRecents = async (req, res) => {
@@ -63,9 +69,13 @@ export class TransactionController {
 				.json({ error: JSON.parse(result.error.message) });
 		}
 
-		const account = await this.model.create({...result.data, code_transaction: randomUUID()});
+		const transaction = await this.model.create({...result.data, code_transaction: randomUUID()});
 
-		return res.status(201).json(account);
+		if (transaction) {
+			return res
+				.status(201)
+				.json({ msg: "Registro ingresado correctamente." });
+		}
 	};
 
 	createTransfer = async (req, res) => {
