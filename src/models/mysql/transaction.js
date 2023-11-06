@@ -21,6 +21,26 @@ export class TransactionModel {
 		return transactions;
 	}
 
+	static async getRecents() {
+		const [transactions] = await connection.query(
+			`SELECT t.*, 
+				tt.name as type_transaction_name,
+				ad.name as account_destination,
+				ao.name as account_origin,
+				c.name as concept
+			FROM transactions t 
+				LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+				LEFT JOIN concepts c ON c.concept_id = t.concept_id
+				INNER JOIN types_transactions tt on tt.type_transaction_id = t.type_transaction_id
+			ORDER BY t.date_transaction DESC
+			LIMIT 6;
+	 `
+		);
+
+		return transactions;
+	}
+
 	static async getTransationById(id) {
 		const [transactions] = await connection.query(
 			`SELECT t.*, 
@@ -119,26 +139,29 @@ export class TransactionModel {
 	}
 
 	static async create({
-		type_transaction_id,
 		date_transaction,
 		amount,
 		concept_id,
 		observation,
 		account_origin_id,
 		account_destination_id,
+		transation_code_id,
+		code_transaction
 	}) {
 		date_transaction = convertDateToSaveDB(date_transaction);
 
 		const [transaction] = await connection.query(
-			`INSERT INTO transactions (type_transaction_id, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+			`INSERT INTO transactions (type_transaction_id, code_transaction, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
 			[
 				type_transaction_id,
+				code_transaction,
 				date_transaction,
 				amount,
 				concept_id,
 				observation,
 				account_origin_id,
 				account_destination_id,
+				transation_code_id
 			]
 		);
 

@@ -10,7 +10,7 @@ export function validate(content) {
 				.int()
 				.min(1)
 				.optional(),
-			date_transaction: z.date().optional(),
+			date_transaction: z.string().datetime({ offset: true }).max(new Date(), { message: 'Ingrese una fecha menor al día de hoy.' }).optional(),
 			amount: z.string({
 				invalid_type_error: "Error de tipo",
 				required_error: "El monto es requerido.",

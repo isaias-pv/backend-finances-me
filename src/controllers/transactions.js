@@ -1,6 +1,7 @@
 import { validate } from "../schemas/transaction.js";
 import { TransactionModel } from "./../models/mysql/transaction.js";
 import { request } from 'express';
+import { randomUUID } from 'crypto';
 
 export class TransactionController {
 	constructor() {
@@ -9,6 +10,11 @@ export class TransactionController {
 
 	getAll = async (req, res) => {
 		const transactions = await this.model.getAll();
+		res.json(transactions);
+	};
+
+	getRecents = async (req, res) => {
+		const transactions = await this.model.getRecents();
 		res.json(transactions);
 	};
 
@@ -57,7 +63,7 @@ export class TransactionController {
 				.json({ error: JSON.parse(result.error.message) });
 		}
 
-		const account = await this.model.create(result.data);
+		const account = await this.model.create({...result.data, code_transaction: randomUUID()});
 
 		return res.status(201).json(account);
 	};
@@ -71,15 +77,19 @@ export class TransactionController {
 				.json({ error: JSON.parse(resultValidation.error.message) });
 		}
 
+		const code_transaction = randomUUID();
+
 		const insertEgress = await this.model.create({
 			...resultValidation.data,
-			type_transaction_id: 1,
+			concept_id: 1,
+			code_transaction
 		});
 
 		if (insertEgress) {
 			const insertIncome = await this.model.create({
 				...resultValidation.data,
-				type_transaction_id: 2,
+				concept_id: 2,
+				code_transaction
 			});
 			if (insertIncome) {
 				return res

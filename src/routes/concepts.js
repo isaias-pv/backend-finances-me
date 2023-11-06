@@ -9,6 +9,7 @@ export const conceptRouter = () => {
 	router.get("/", controller.getAll);
 	router.get("/:id", controller.findById);
 	router.get("/search", controller.searchByName);
+	router.get("/type_transaction/:id", controller.getByTypeTransactionId);
 
 	return router;
 };

@@ -1,3 +1,4 @@
+import { request } from "express";
 import { searchByName } from "../schemas/general.js";
 import { ConceptModel } from "./../models/mysql/concept.js";
 
@@ -6,9 +7,16 @@ export class ConceptController {
 		this.model = ConceptModel;
 	}
 
-	getAll = async (req, res) => {
-		const concepts = await this.model.getAll();
-		res.json(concepts);
+	getAll = async (req = request, res) => {
+		
+		const { all } = req.query;
+
+		if (all && all === true) {
+			res.json(await this.model.getAll());
+			return
+		}
+
+		res.json(await this.model.getOnlyVisible());
 	};
 
 	findById = async (req, res) => {
@@ -29,6 +37,14 @@ export class ConceptController {
 				.json({ error: JSON.parse(result.error.message) });
 
 		const concepts = await this.model.searchByName(query);
+
+		if (concepts) return res.json(concepts);
+		res.status(404).json({ message: "concepts not found" });
+	};
+
+	getByTypeTransactionId = async (req, res) => {
+		const { id } = req.params;
+		const concepts = await this.model.findByTypeTransactionId(id);
 
 		if (concepts) return res.json(concepts);
 		res.status(404).json({ message: "concepts not found" });
