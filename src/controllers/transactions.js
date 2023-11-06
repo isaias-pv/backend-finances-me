@@ -14,23 +14,28 @@ export class TransactionController {
 		res.json(transactions);
 	};
 
+	orderTransactionsByDate(transactions = []) {
+		const response = {};
+	
+		transactions.forEach(transaction => {
+			const key = transaction.date_transaction;
+	
+			if (!response[key]) {
+				response[key] = { group_key: key, content: [] };
+			}
+			
+			response[key].content.push(transaction);
+		});    
+		return Object.values(response);
+	}
+
 	getAllOrder = async (req, res) => {
 		const transactions = await this.model.getAll();
-		const response = [];
-
-		transactions.forEach(transaction => {
-			const key = convertDateToSaveDB(transaction.date_transaction);
-
-
-			const i = response.findIndex(item => item.group_key === key);
-			
-			if (i != -1) {
-				response[i].content = [...response[i].content, transaction];
-			} else {
-				// }
-				response.push({ group_key: key, content: [] });
-			}
-		});
+		
+		const response = {
+			incomes: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 1)),
+			expenses: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 2))
+		};
 
 		res.json(response);
 	};
