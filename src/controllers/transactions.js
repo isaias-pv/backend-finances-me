@@ -2,6 +2,7 @@ import { validate } from "../schemas/transaction.js";
 import { TransactionModel } from "./../models/mysql/transaction.js";
 import { request } from 'express';
 import { randomUUID } from 'crypto';
+import { convertDateToSaveDB } from "../utils/date.js";
 
 export class TransactionController {
 	constructor() {
@@ -15,7 +16,18 @@ export class TransactionController {
 
 	getAllOrder = async (req, res) => {
 		const transactions = await this.model.getAll();
-		res.json(transactions);
+		const response = {};
+
+		transactions.forEach(transaction => {
+			const key = convertDateToSaveDB(transaction.date_transaction);
+			if (Array.isArray(response[key])) {
+				response[key] = [...response[key], transaction];
+			} else {
+				response[key] = [];
+			}
+		});
+
+		res.json(response);
 	};
 
 	getRecents = async (req, res) => {
