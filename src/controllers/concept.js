@@ -11,7 +11,7 @@ export class ConceptController {
 		
 		const { all } = req.query;
 
-		if (all && all === true) {
+		if (all && all === 'true') {
 			res.json(await this.model.getAll());
 			return
 		}
