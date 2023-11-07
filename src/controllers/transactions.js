@@ -30,14 +30,27 @@ export class TransactionController {
 	}
 
 	getAllOrder = async (req, res) => {
-		const transactions = await this.model.getAll();
-		
-		const response = {
-			incomes: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 1)),
-			expenses: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 2))
-		};
+		const transactions = await this.model.getAllOrder();
 
-		res.json(response);
+		const response = {};
+
+		transactions.forEach(transaction => {
+			const key = transaction.type_transaction_name;
+	
+			if (!response[key]) {
+				response[key] = { group_key: key, content: [] };
+			}
+			
+			response[key].content.push(transaction);
+		});
+		
+		
+		// const response = {
+		// 	incomes: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 1)),
+		// 	expenses: this.orderTransactionsByDate(transactions.filter(transaction => transaction.concept_id === 2))
+		// };
+
+		res.json(Object.values(response));
 	};
 
 	getRecents = async (req, res) => {
