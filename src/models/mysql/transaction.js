@@ -4,6 +4,25 @@ import { convertDateToSaveDB } from "./../../utils/date.js";
 export class TransactionModel {
 	static async getAll() {
 		const [transactions] = await connection.query(
+			`SELECT 
+				t.*,
+				tt.name AS type_transaction_name,
+				ad.name AS account_destination,
+				ao.name AS account_origin,
+				c.name AS concept
+			FROM transactions t 
+				LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+				LEFT JOIN concepts c ON c.concept_id = t.concept_id
+				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
+			ORDER BY t.date_transaction DESC;`
+		);
+
+		return transactions;
+	}
+
+	static async getAllOrder() {
+		const [transactions] = await connection.query(
 			`-- Obtener información con filtro
 			SELECT 
 				tt.name AS type_transaction_name,
@@ -51,9 +70,7 @@ export class TransactionModel {
 			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
-			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
-			
-		`
+			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`
 		);
 
 		return transactions;
