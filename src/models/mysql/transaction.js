@@ -4,18 +4,56 @@ import { convertDateToSaveDB } from "./../../utils/date.js";
 export class TransactionModel {
 	static async getAll() {
 		const [transactions] = await connection.query(
-			`SELECT 
-				t.*,
+			`-- Obtener información con filtro
+			SELECT 
 				tt.name AS type_transaction_name,
-				ad.name AS account_destination,
-				ao.name AS account_origin,
-				c.name AS concept
+				t.date_transaction,
+				JSON_ARRAYAGG(
+					JSON_OBJECT(
+						'transaction_id', t.transaction_id,
+						'code_transaction', t.code_transaction,
+						'amount', t.amount,
+						'observation', t.observation,
+						'type_transaction_name', tt.name,
+						'account_destination', ad.name,
+						'account_origin', ao.name,
+						'concept', c.name
+					)
+				) AS transactions
 			FROM transactions t 
-				LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
-				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
-				LEFT JOIN concepts c ON c.concept_id = t.concept_id
-				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
-			ORDER BY t.date_transaction DESC;`
+			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+			LEFT JOIN concepts c ON c.concept_id = t.concept_id
+			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
+			-- Agregar el filtro aquí, por ejemplo:
+			WHERE t.amount > 1000
+			GROUP BY tt.name, t.date_transaction
+			
+			UNION ALL
+			
+			-- Obtener todas las transacciones sin filtro
+			SELECT 
+				'ALL' AS type_transaction_name,
+				NULL AS date_transaction,
+				JSON_ARRAYAGG(
+					JSON_OBJECT(
+						'transaction_id', t.transaction_id,
+						'code_transaction', t.code_transaction,
+						'amount', t.amount,
+						'observation', t.observation,
+						'type_transaction_name', tt.name,
+						'account_destination', ad.name,
+						'account_origin', ao.name,
+						'concept', c.name
+					)
+				) AS transactions
+			FROM transactions t 
+			LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+			LEFT JOIN concepts c ON c.concept_id = t.concept_id
+			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
+			
+		`
 		);
 
 		return transactions;
