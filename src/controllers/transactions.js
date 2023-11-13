@@ -63,6 +63,11 @@ export class TransactionController {
 		res.json(transactions);
 	};
 
+	getTransationByCode = async (req = request, res) => {
+		const transactions = await this.model.getTransationByCode(req.params.code);
+		res.json(transactions);
+	};
+
 	getIncomeAndExpenseByAccounts = async (req, res) => {
 		const transactions = await this.model.getIncomeAndExpenseByAccounts();
 		res.json(transactions);

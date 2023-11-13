@@ -36,6 +36,7 @@ export class TransactionModel {
 						'type_transaction_name', tt.name,
 						'account_destination', ad.name,
 						'account_origin', ao.name,
+						'date_transaction', t.date_transaction,
 						'concept', c.name
 					)
 				) AS transactions
@@ -63,6 +64,7 @@ export class TransactionModel {
 						'type_transaction_name', tt.name,
 						'account_destination', ad.name,
 						'account_origin', ao.name,
+						'date_transaction', t.date_transaction,
 						'concept', c.name
 					)
 				) AS transactions
@@ -115,6 +117,26 @@ export class TransactionModel {
 
 		return transactions;
 	}
+
+	static async getTransationByCode(code) {
+		const [transactions] = await connection.query(
+			`SELECT t.*, 
+						tt.name as type_transaction_name,
+						ad.name as account_destination,
+						ao.name as account_origin,
+						c.name as concept
+				FROM transactions t 
+						LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+						LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+						LEFT JOIN concepts c ON c.concept_id = t.concept_id
+						INNER JOIN types_transactions tt on tt.type_transaction_id = c.type_transaction_id
+				WHERE t.code_transaction = ?`,
+			[code]
+		);
+
+		return transactions;
+	}
+
 
 	static async getIncomeAndExpenseByAccounts() {
 		const [transactions] = await connection.query(

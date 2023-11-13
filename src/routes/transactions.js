@@ -26,6 +26,7 @@ export const transactionRouter = () => {
 	);
 
 	router.get("/:id", controller.getTransationById);
+	router.get("/code/:code", controller.getTransationByCode);
 
 	router.post("/create", controller.create);
 	router.post("/transfer/create", controller.createTransfer);
