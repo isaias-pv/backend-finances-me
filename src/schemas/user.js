@@ -6,26 +6,26 @@ const passwordRegex = new RegExp(
 
 const userSchema = z.object({
 	name: z.string({
-		invalid_type_error: "Invalid type",
-		required_error: "Name is required.",
+		invalid_type_error: "Tipo de dato inválido",
+		required_error: "Nombre es requerido.",
 	}),
 	username: z.string({
-		invalid_type_error: "Invalid type",
-		required_error: "Username is required",
+		invalid_type_error: "Tipo de dato inválido",
+		required_error: "Nombre de usuario es requerido.",
 	}),
 	email: z
 		.string({
-			invalid_type_error: "Invalid type",
-			required_error: "Email is required.",
+			invalid_type_error: "Tipo de dato inválido",
+			required_error: "Correo es requerido.",
 		})
 		.email(),
 	password: z
 		.string({
-			invalid_type_error: "Invalid type",
-			required_error: "Password is required.",
+			invalid_type_error: "Tipo de dato inválido",
+			required_error: "Contraseña es requerida.",
 		})
 		.regex(passwordRegex, {
-			message: "Password must be at least",
+			message: "Estructura de contraseña inválida",
 		}),
 });
 
