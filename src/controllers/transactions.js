@@ -32,27 +32,25 @@ export class TransactionController {
 	getAllOrder = async (req, res) => {
 		const transactions = await this.model.getAllOrder();
 
-		const response = {};
+		const groupedTransactions = transactions.reduce((acc, transaction) => {
+			const { type_transaction_name } = transaction;
 
-		transactions.forEach((transaction) => {
-			const key = transaction.type_transaction_name;
-
-			if (!response[key]) {
-				response[key] = { group_key: key, content: [] };
+			if (!acc[type_transaction_name]) {
+				acc[type_transaction_name] = {
+					group_key: type_transaction_name,
+					content: [],
+				};
 			}
 
-			response[key].content.push(transaction);
-		});
-
-		const transactionsValues = Object.values(response);
+			acc[type_transaction_name].content.push(transaction);
+			return acc;
+		}, {});
 
 		const allTransactions =
-			transactionsValues.find((r) => r.group_key === "ALL").content[0]
-				.transactions || [];
-
+			groupedTransactions["ALL"]?.content[0]?.transactions || [];
 		const transactionsMap = new Map();
 
-		allTransactions.map((transaction) => {
+		allTransactions.forEach((transaction) => {
 			if (transaction.code_transaction) {
 				if (transactionsMap.has(transaction.code_transaction)) {
 					const existingTransaction = transactionsMap.get(
@@ -68,21 +66,17 @@ export class TransactionController {
 			}
 		});
 
-		transactionsValues.find(
-			(r) => r.group_key === "ALL"
-		).content[0].transactions = Array.from(transactionsMap.values()).sort(
-			(a, b) => {
-				if (
-					new Date(a.date_transaction).getTime() >
-					new Date(b.date_transaction).getTime()
-				) {
-					return -1;
-				}
+		if (groupedTransactions["ALL"]) {
+			groupedTransactions["ALL"].content[0].transactions = Array.from(
+				transactionsMap.values()
+			).sort(
+				(a, b) =>
+					new Date(b.date_transaction).getTime() -
+					new Date(a.date_transaction).getTime()
+			);
+		}
 
-				return 1;
-			}
-		);
-
+		const transactionsValues = Object.values(groupedTransactions);
 		res.json(transactionsValues);
 	};
 
