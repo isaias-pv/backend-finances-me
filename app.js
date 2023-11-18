@@ -10,6 +10,7 @@ import { conceptRouter } from "./src/routes/concepts.js";
 import { typesTransactionsRouter } from "./src/routes/types_transactions.js";
 import { usersRouter } from "./src/routes/user.js";
 import { authRouter } from "./src/routes/auth.js";
+import { verifyToken } from "./src/middlewares/token.js";
 
 export const createApp = () => {
 	const app = express();
@@ -17,12 +18,12 @@ export const createApp = () => {
 	app.use(corsMiddleware());
 	app.disable("x-powered-by");
 
-	app.use("/transactions", transactionRouter());
-	app.use("/accounts", accountsRouter());
-	app.use("/banks", banksRouter());
-	app.use("/concepts", conceptRouter());
-	app.use("/type_transactions", typesTransactionsRouter());
-	app.use("/users", usersRouter());
+	app.use("/transactions", verifyToken, transactionRouter());
+	app.use("/accounts", verifyToken, accountsRouter());
+	app.use("/banks", verifyToken, banksRouter());
+	app.use("/concepts", verifyToken, conceptRouter());
+	app.use("/type_transactions", verifyToken, typesTransactionsRouter());
+	app.use("/users", verifyToken, usersRouter());
 	app.use("/auth", authRouter());
 
 	const PORT = process.env.PORT ?? 1234;

@@ -28,11 +28,15 @@ export function decodeJWT(token) {
 }
 
 export async function verifyJWT(token) {
-	const { payload } = await jose.jwtVerify(token, SECRET_KEY);
-
-	if (!payload.data)  return false;
-
-	return payload;
+	try {
+		const { payload } = await jose.jwtVerify(token, SECRET_KEY);
+	
+		if (!payload.data)  return false;
+	
+		return payload;
+	} catch (error) {
+		return false
+	}
 }
 
 export async function expiredJWT(token) {
