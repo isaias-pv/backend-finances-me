@@ -1,5 +1,6 @@
 import { validate, validatePartial } from "../schemas/auth.js";
 import { compare, encrypt } from "../utils/encrypt.js";
+import { decodeJWT, expiredJWT, generateJWT, verifyJWT } from "../utils/jwt.js";
 import { AuthModel } from "./../models/mysql/auth.js";
 
 export class AuthController {
@@ -36,6 +37,8 @@ export class AuthController {
 			return res.status(400).json({ msg: 'Invalid credentials!'});
 		}
 
-		return res.status(200).json({ user });
+		const jwt = await generateJWT({ data: user.user_id});
+
+		return res.status(200).json({ user, token: jwt });
 	};
 }
