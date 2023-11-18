@@ -19,8 +19,8 @@ export async function encrypt(text) {
 export async function compare(text1, text2) {
 	return new Promise((resolve, reject) => {
 		bcrypt.compare(text2, text1, (err, result) => {
-			if (result) return resolve(result);
-			reject(err)
+			if (err) return reject(err);
+			resolve(result);
 		});
 	});
 }
