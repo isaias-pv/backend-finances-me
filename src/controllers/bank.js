@@ -12,6 +12,11 @@ export class BankController {
 		res.json(banks);
 	};
 
+	getAllQuantityAccounts = async (req, res) => {
+		const banks = await this.model.getAllQuantityAccounts();
+		res.json(banks);
+	};
+
 	findById = async (req, res) => {
 		const { id } = req.params;
 		const banks = await this.model.findById(id);

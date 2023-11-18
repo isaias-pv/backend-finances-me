@@ -8,6 +8,8 @@ import { accountsRouter } from "./src/routes/accounts.js";
 import { banksRouter } from "./src/routes/banks.js";
 import { conceptRouter } from "./src/routes/concepts.js";
 import { typesTransactionsRouter } from "./src/routes/types_transactions.js";
+import { usersRouter } from "./src/routes/user.js";
+import { authRouter } from "./src/routes/auth.js";
 
 export const createApp = () => {
 	const app = express();
@@ -20,6 +22,8 @@ export const createApp = () => {
 	app.use("/banks", banksRouter());
 	app.use("/concepts", conceptRouter());
 	app.use("/type_transactions", typesTransactionsRouter());
+	app.use("/users", usersRouter());
+	app.use("/auth", authRouter());
 
 	const PORT = process.env.PORT ?? 1234;
 

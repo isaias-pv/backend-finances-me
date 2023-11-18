@@ -7,6 +7,12 @@ export class BankModel {
 		return banks;
 	}
 
+	static async getAllQuantityAccounts() {
+		const [banks] = await connection.query(`SELECT b.*, COUNT(*) as accounts_quantity FROM banks b INNER JOIN accounts a ON a.bank_id = b.bank_id GROUP BY a.bank_id;`);
+
+		return banks;
+	}
+
 	static async findById(id) {
 		const [banks] = await connection.query(
 			`SELECT * FROM banks WHERE bank_id = ?;`,
@@ -46,7 +52,7 @@ export class BankModel {
 	}
 
 	static async delete(id) {
-		const [bank] = await connection.query(`DELETE FROM banks WHERE ?;`, [
+		const [bank] = await connection.query(`DELETE FROM banks WHERE bank_id = ?;`, [
 			id,
 		]);
 

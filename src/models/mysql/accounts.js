@@ -58,7 +58,7 @@ export class AccountModel {
 
 	static async delete(id) {
 		const [account] = await connection.query(
-			`DELETE FROM accounts WHERE ?;`,
+			`DELETE FROM accounts WHERE account_id = ?;`,
 			[id]
 		);
 

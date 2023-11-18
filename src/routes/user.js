@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { BankController } from "./../controllers/bank.js";
+import { UserController } from "./../controllers/user.js";
 
-export const banksRouter = () => {
+export const usersRouter = () => {
 	const router = Router();
 
-	const controller = new BankController();
+	const controller = new UserController();
 
 	router.get("/", controller.getAll);
-	router.get("/accounts_quantity", controller.getAllQuantityAccounts);
 	router.get("/:id", controller.findById);
 	router.get("/search", controller.searchByName);
 

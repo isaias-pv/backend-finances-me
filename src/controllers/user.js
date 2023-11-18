@@ -1,23 +1,25 @@
-import { validate, validatePartial } from "../schemas/account.js";
+import { validate, validatePartial } from "../schemas/user.js";
 import { searchByName } from "../schemas/general.js";
-import { AccountModel } from "./../models/mysql/accounts.js";
+import { UserModel } from "./../models/mysql/user.js";
 
-export class AccountController {
+export class UserController {
 	constructor() {
-		this.model = AccountModel;
+		this.model = UserModel;
 	}
 
 	getAll = async (req, res) => {
-		const accounts = await this.model.getAll();
-		res.json(accounts);
+		const users = await this.model.getAll();
+
+		if (users) return res.json(users);
+		res.status(404).json({ msg: "User not found!" });
 	};
 
 	findById = async (req, res) => {
 		const { id } = req.params;
-		const accounts = await this.model.findById(id);
+		const users = await this.model.findById(id);
 
-		if (accounts) return res.json(accounts);
-		res.status(404).json({ msg: "Accounts not found" });
+		if (users) return res.json(users);
+		res.status(404).json({ msg: "User not found!" });
 	};
 
 	searchByName = async (req, res) => {
@@ -29,18 +31,10 @@ export class AccountController {
 				.status(400)
 				.json({ error: JSON.parse(result.error.msg) });
 
-		const accounts = await this.model.searchByName(query);
+		const users = await this.model.searchByName(query);
 
-		if (accounts) return res.json(accounts);
-		res.status(404).json({ msg: "Accounts not found" });
-	};
-
-	findByBankId = async (req, res) => {
-		const { id } = req.params;
-		const accounts = await this.model.findByBankId(id);
-
-		if (accounts) return res.json(accounts);
-		res.status(404).json({ msg: "Accounts not found" });
+		if (users) return res.json(users);
+		res.status(404).json({ msg: "User not found" });
 	};
 
 	create = async (req, res) => {
@@ -54,7 +48,7 @@ export class AccountController {
 
 		const account = await this.model.create(result.data);
 
-		return res.status(201).json({ msg: 'Cuenta creada correctamente' });
+		return res.status(201).json({ msg: "Usuario creado correctamente" });
 	};
 
 	update = async (req, res) => {
@@ -69,7 +63,7 @@ export class AccountController {
 
 		const account = await this.model.update(id, result.data);
 
-		return res.json({ msg: 'Cuenta actualizada correctamente' });
+		return res.json({ msg: "Usuario actualizado correctamente" });
 	};
 
 	delete = async (req, res) => {
@@ -78,9 +72,9 @@ export class AccountController {
 		const result = await this.model.delete(id);
 
 		if (result === false) {
-			return res.status(404).json({ msg: "Account not found" });
+			return res.status(404).json({ msg: "User not found" });
 		}
 
-		return res.json({ msg: "Cuenta eliminada correctamente" });
+		return res.json({ msg: "Usuario eliminado correctamente" });
 	};
 }
