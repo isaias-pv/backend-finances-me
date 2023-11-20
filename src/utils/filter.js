@@ -3,8 +3,8 @@ const filters = {
 	date_recent: "DATE",
 	month: "MONTH",
 	year: "YEAR",
-	range: "DATE",
-	search: "LIKE",
+	range: "RANGE",
+	search: "SEARCH",
 };
 
 

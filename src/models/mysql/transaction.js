@@ -76,7 +76,7 @@ export class TransactionModel {
 		return transactions;
 	}
 
-	static async getAllOrderFilter(key = 'DATE', date = new Date()) {
+	static async getAllOrderFilter(key = 'DATE', value = new Date()) {
 		let query = `
         SELECT 
             tt.name AS type_transaction_name,
@@ -104,16 +104,26 @@ export class TransactionModel {
 
 		if (key === "MONTH") {
 			query += ` WHERE MONTH(t.date_transaction) = MONTH(?) AND YEAR(t.date_transaction) = YEAR(?)`;
-			queryParams.push(date, date);
+			queryParams.push(value, value);
 		} else if (key === "YEAR") {
 			query += ` WHERE YEAR(t.date_transaction) = YEAR(?)`;
-			queryParams.push(date);
+			queryParams.push(value);
 		} else if (key === "DATE") {
 			query += ` WHERE DATE(t.date_transaction) = DATE(?)`;
-			queryParams.push(date);
-		}
+			queryParams.push(value);
+		} else if (key === "RANGE") {
+			const { date_start, date_end } = JSON.parse(value);
 
-		query += `GROUP BY tt.name, t.date_transaction
+			query += ` WHERE DATE(t.date_transaction) BETWEEN DATE(?) AND DATE(?)`;
+			queryParams.push(date_start);
+			queryParams.push(date_end);
+		} else if (key === "SEARCH") {
+			query += ` WHERE t.observation LIKE ? OR c.name LIKE ?`;
+			queryParams.push(`%${value}%`);
+			queryParams.push(`%${value}%`);
+		}		
+
+		query += ` GROUP BY tt.name, t.date_transaction
 				
 				UNION ALL
 				
@@ -139,6 +149,7 @@ export class TransactionModel {
 				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 				LEFT JOIN concepts c ON c.concept_id = t.concept_id
 				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`;
+				console.log(query);
 
 		const [transactions] = await connection.query(query, queryParams);
 		return transactions;
