@@ -10,7 +10,8 @@ export const verifyToken = async (req = request, res = response, next) => {
 
 	  // Verificar si estamos en la ruta '/auth/sign-in/' y es un método POST
 	  if (originalUrl === "/auth/sign-in/" && method === "POST") {
-        return next(); // Omitir el middleware y continuar con la ruta
+        next(); // Omitir el middleware y continuar con la ruta
+		return;
     }
 	
     if (!authorization) {
