@@ -15,16 +15,16 @@ import { verifyToken } from "./src/middlewares/token.js";
 export const createApp = () => {
 	const app = express();
 	app.use(json());
-	app.use(corsMiddleware());
+	// app.use(corsMiddleware());
 	app.disable("x-powered-by");
 
-	app.use("/transactions", verifyToken, transactionRouter());
-	app.use("/accounts", verifyToken, accountsRouter());
-	app.use("/banks", verifyToken, banksRouter());
-	app.use("/concepts", verifyToken, conceptRouter());
-	app.use("/type_transactions", verifyToken, typesTransactionsRouter());
-	app.use("/users", verifyToken, usersRouter());
-	app.use("/auth", authRouter());
+	app.use("/transactions", [corsMiddleware, verifyToken], transactionRouter());
+	app.use("/accounts", [corsMiddleware, verifyToken], accountsRouter());
+	app.use("/banks", [corsMiddleware, verifyToken], banksRouter());
+	app.use("/concepts", [corsMiddleware, verifyToken], conceptRouter());
+	app.use("/type_transactions", [corsMiddleware, verifyToken], typesTransactionsRouter());
+	app.use("/users", [corsMiddleware, verifyToken], usersRouter());
+	app.use("/auth", corsMiddleware, authRouter());
 
 	const PORT = process.env.PORT ?? 1234;
 
