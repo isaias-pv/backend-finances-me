@@ -3,6 +3,7 @@ import { TransactionModel } from "./../models/mysql/transaction.js";
 import { request } from "express";
 import { randomUUID } from "crypto";
 import { convertDateToSaveDB } from "../utils/date.js";
+import { filters } from '../utils/filter.js';
 
 export class TransactionController {
 	constructor() {
@@ -29,8 +30,27 @@ export class TransactionController {
 		return Object.values(response);
 	}
 
-	getAllOrder = async (req, res) => {
-		const transactions = await this.model.getAllOrder();
+	getAllOrder = async (req = request, res) => {
+
+		const { filter, value } = req.query;
+
+		let transactions;
+
+		if (filter && value) {
+			const key = filters[filter];
+			if (key) {
+				transactions = await this.model.getAllOrderFilter(key, value);
+			} else {
+				transactions = await this.model.getAllOrder();
+			}
+		} else {
+			transactions = await this.model.getAllOrder();
+		}
+
+		if (transactions.length === 1) {
+			return res.json([]);
+		}
+
 
 		const groupedTransactions = transactions.reduce((acc, transaction) => {
 			const { type_transaction_name } = transaction;

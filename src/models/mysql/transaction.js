@@ -45,8 +45,6 @@ export class TransactionModel {
 			LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 			LEFT JOIN concepts c ON c.concept_id = t.concept_id
 			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id
-			-- Agregar el filtro aquí, por ejemplo:
-			WHERE t.amount > 1000
 			GROUP BY tt.name, t.date_transaction
 			
 			UNION ALL
@@ -75,6 +73,74 @@ export class TransactionModel {
 			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`
 		);
 
+		return transactions;
+	}
+
+	static async getAllOrderFilter(key = 'DATE', date = new Date()) {
+		let query = `
+        SELECT 
+            tt.name AS type_transaction_name,
+            t.date_transaction,
+            JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'transaction_id', t.transaction_id,
+                    'code_transaction', t.code_transaction,
+                    'amount', t.amount,
+                    'observation', t.observation,
+                    'type_transaction_name', tt.name,
+                    'account_destination', ad.name,
+                    'account_origin', ao.name,
+                    'date_transaction', t.date_transaction,
+                    'concept', c.name
+                )
+            ) AS transactions
+        FROM transactions t 
+        LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+        LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+        LEFT JOIN concepts c ON c.concept_id = t.concept_id
+        INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id`;
+
+		const queryParams = [];
+
+		if (key === "MONTH") {
+			query += ` WHERE MONTH(t.date_transaction) = MONTH(?) AND YEAR(t.date_transaction) = YEAR(?)`;
+			queryParams.push(date, date);
+		} else if (key === "YEAR") {
+			query += ` WHERE YEAR(t.date_transaction) = YEAR(?)`;
+			queryParams.push(date);
+		} else if (key === "DATE") {
+			query += ` WHERE DATE(t.date_transaction) = DATE(?)`;
+			queryParams.push(date);
+		}
+
+		query += `GROUP BY tt.name, t.date_transaction
+				
+				UNION ALL
+				
+				-- Obtener todas las transacciones sin filtro
+				SELECT 
+					'ALL' AS type_transaction_name,
+					NULL AS date_transaction,
+					JSON_ARRAYAGG(
+						JSON_OBJECT(
+							'transaction_id', t.transaction_id,
+							'code_transaction', t.code_transaction,
+							'amount', t.amount,
+							'observation', t.observation,
+							'type_transaction_name', tt.name,
+							'account_destination', ad.name,
+							'account_origin', ao.name,
+							'date_transaction', t.date_transaction,
+							'concept', c.name
+						)
+					) AS transactions
+				FROM transactions t 
+				LEFT JOIN accounts ao ON ao.account_id = t.account_origin_id
+				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
+				LEFT JOIN concepts c ON c.concept_id = t.concept_id
+				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`;
+
+		const [transactions] = await connection.query(query, queryParams);
 		return transactions;
 	}
 
@@ -136,7 +202,6 @@ export class TransactionModel {
 
 		return transactions;
 	}
-
 
 	static async getIncomeAndExpenseByAccounts() {
 		const [transactions] = await connection.query(
@@ -224,7 +289,7 @@ export class TransactionModel {
 		account_origin_id,
 		account_destination_id,
 		transation_code_id,
-		code_transaction
+		code_transaction,
 	}) {
 		date_transaction = convertDateToSaveDB(date_transaction);
 
@@ -238,7 +303,7 @@ export class TransactionModel {
 				observation,
 				account_origin_id,
 				account_destination_id,
-				transation_code_id
+				transation_code_id,
 			]
 		);
 
