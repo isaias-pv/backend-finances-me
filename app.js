@@ -16,21 +16,20 @@ export const createApp = () => {
 	const app = express();
 	app.use(json());
 	app.use(corsMiddleware());
-	app.use(verifyToken());
 	app.disable("x-powered-by");
 
-	app.use("/transactions", transactionRouter());
-	app.use("/accounts", accountsRouter());
-	app.use("/banks", banksRouter());
-	app.use("/concepts", conceptRouter());
-	app.use("/type_transactions", typesTransactionsRouter());
-	app.use("/users", usersRouter());
+	app.use("/transactions", verifyToken, transactionRouter());
+	app.use("/accounts", verifyToken, accountsRouter());
+	app.use("/banks", verifyToken, banksRouter());
+	app.use("/concepts", verifyToken, conceptRouter());
+	app.use("/type_transactions", verifyToken, typesTransactionsRouter());
+	app.use("/users", verifyToken, usersRouter());
 	app.use("/auth", authRouter());
 
 	const PORT = process.env.PORT ?? 1234;
 
 	app.listen(PORT, () => {
-		console.log(`server listening on port http://localhost:${PORT}`);
+		console.log(`server listening on port: ${PORT}`);
 	});
 };
 
