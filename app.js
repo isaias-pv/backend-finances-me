@@ -11,12 +11,14 @@ import { typesTransactionsRouter } from "./src/routes/types_transactions.js";
 import { usersRouter } from "./src/routes/user.js";
 import { authRouter } from "./src/routes/auth.js";
 import { verifyToken } from "./src/middlewares/token.js";
+import morgan from "morgan";
 
 export const createApp = () => {
 	const app = express();
 	app.use(json());
 	app.use(corsMiddleware());
 	app.disable("x-powered-by");
+	app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 	app.use("/transactions", verifyToken, transactionRouter());
 	app.use("/accounts", verifyToken, accountsRouter());
