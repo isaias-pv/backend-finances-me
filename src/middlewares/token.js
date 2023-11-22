@@ -1,5 +1,5 @@
 import { request, response } from "express";
-import { expiredJWT } from "../utils/jwt.js";
+import { verifyJWT } from "../utils/jwt.js";
 
 export const verifyToken = async (req = request, res = response, next) => {
     const {
@@ -10,7 +10,7 @@ export const verifyToken = async (req = request, res = response, next) => {
         return res.status(401).json({ msg: "Invalid authorization" });
     }
 
-    const response = await expiredJWT(authorization);
+    const response = await verifyJWT(authorization);
 
     if (!response) {
         return res.status(401).json({ msg: "Unauthorized" });
