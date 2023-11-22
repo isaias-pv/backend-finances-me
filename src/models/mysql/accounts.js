@@ -2,7 +2,7 @@ import { connection } from "./query.js";
 
 export class AccountModel {
 	static async getAll() {
-		const [accounts] = await connection.query(`SELECT a.*, b.name as name_bank FROM accounts a INNER JOIN banks b ON a.bank_id = b.bank_id ORDER by a.created_at;`);zz
+		const [accounts] = await connection.query(`SELECT a.*, b.name as name_bank FROM accounts a INNER JOIN banks b ON a.bank_id = b.bank_id ORDER by a.created_at;`);
 
 		return accounts;
 	}
