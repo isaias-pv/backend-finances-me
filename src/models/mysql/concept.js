@@ -2,41 +2,43 @@ import { connection } from "./query.js";
 
 export class ConceptModel {
 	static async getOnlyVisible() {
-		const [concepts] = await connection.query(`SELECT * FROM concepts WHERE is_visible = 1;`);
+		const { rows } = await connection.query(
+			`SELECT * FROM concepts WHERE is_visible = 1;`
+		);
 
-		return concepts;
+		return rows;
 	}
 
 	static async getAll() {
-		const [concepts] = await connection.query(`SELECT * FROM concepts;`);
+		const { rows } = await connection.query(`SELECT * FROM concepts;`);
 
-		return concepts;
+		return rows;
 	}
 
 	static async findById(id) {
-		const [concepts] = await connection.query(
-			`SELECT * FROM concepts WHERE concept_id = ?;`,
+		const { rows } = await connection.query(
+			`SELECT * FROM concepts WHERE concept_id = $1;`,
 			[id]
 		);
 
-		return concepts;
+		return rows;
 	}
 
 	static async searchByName(name) {
-		const [concepts] = await connection.query(
-			`SELECT * FROM concepts WHERE name LIKE ('%?%');`,
+		const { rows } = await connection.query(
+			`SELECT * FROM concepts WHERE name LIKE ('%$1%');`,
 			[name]
 		);
 
-		return concepts;
+		return rows;
 	}
 
 	static async findByTypeTransactionId(id) {
-		const [concepts] = await connection.query(
-			`SELECT * FROM concepts WHERE type_transaction_id = ? AND is_visible = 1;`,
+		const { rows } = await connection.query(
+			`SELECT * FROM concepts WHERE type_transaction_id = $1 AND is_visible = 1;`,
 			[id]
 		);
 
-		return concepts;
+		return rows;
 	}
 }
