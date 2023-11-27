@@ -2,63 +2,60 @@ import { connection } from "./query.js";
 
 export class BankModel {
 	static async getAll() {
-		const { rows } = await connection.query(`SELECT * FROM banks;`);
+		const [banks] = await connection.query(`SELECT * FROM banks;`);
 
-		return rows;
+		return banks;
 	}
 
 	static async getAllQuantityAccounts() {
-		const { rows } = await connection.query(
-			`SELECT b.*, COUNT(*) as accounts_quantity FROM banks b INNER JOIN accounts a ON a.bank_id = b.bank_id GROUP BY a.bank_id;`
-		);
+		const [banks] = await connection.query(`SELECT b.*, COUNT(*) as accounts_quantity FROM banks b INNER JOIN accounts a ON a.bank_id = b.bank_id GROUP BY a.bank_id;`);
 
-		return rows;
+		return banks;
 	}
 
 	static async findById(id) {
-		const { rows } = await connection.query(
-			`SELECT * FROM banks WHERE bank_id = $1;`,
+		const [banks] = await connection.query(
+			`SELECT * FROM banks WHERE bank_id = ?;`,
 			[id]
 		);
 
-		return rows;
+		return banks;
 	}
 
 	static async searchByName(name) {
-		const { rows } = await connection.query(
-			`SELECT * FROM banks WHERE name LIKE ('%$1%');`,
+		const [banks] = await connection.query(
+			`SELECT * FROM banks WHERE name LIKE ('%?%');`,
 			[name]
 		);
 
-		return rows;
+		return banks;
 	}
 
 	static async create({ name }) {
-		const { rows } = await connection.query(
-			`INSERT INTO banks (name) VALUES ($1);`,
+		const [bank] = await connection.query(
+			`INSERT INTO banks (name) VALUES (?);`,
 			[name]
 		);
 
-		return rows;
+		return bank;
 	}
 
 	static async update(id, { name }) {
-		const { rows } = await connection.query(
+		const [bank] = await connection.query(
 			`UPDATE banks SET 
-				name = $1
-			WHERE bank_id = $2;`,
+				name = ?
+			WHERE bank_id = ?;`,
 			[name, id]
 		);
 
-		return rows;
+		return bank;
 	}
 
 	static async delete(id) {
-		const { rows } = await connection.query(
-			`DELETE FROM banks WHERE bank_id = $1;`,
-			[id]
-		);
+		const [bank] = await connection.query(`DELETE FROM banks WHERE bank_id = ?;`, [
+			id,
+		]);
 
-		return rows;
+		return bank;
 	}
 }

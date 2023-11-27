@@ -2,20 +2,22 @@ import { connection } from "./query.js";
 
 export class AuthModel {
 	static async getUser({ username }) {
-		const { rows } = await connection.query(
-			"SELECT * FROM users WHERE username = $1",
+		const [users] = await connection.query(
+			`SELECT * FROM users WHERE username = ?;`,
 			[username]
 		);
 
-		return rows;
+		return users;
 	}
 
 	static async verifyUser({ username, password }) {
-		const { rows } = await connection.query(
-			`SELECT * FROM users WHERE username = $1 AND password = $2;`,
+		const [users] = await connection.query(
+			`SELECT * FROM users WHERE username = ? AND password = ?;`,
 			[username, password]
 		);
 
-		return rows;
+		return users;
 	}
+
+
 }

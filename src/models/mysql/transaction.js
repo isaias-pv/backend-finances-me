@@ -3,7 +3,7 @@ import { convertDateToSaveDB } from "./../../utils/date.js";
 
 export class TransactionModel {
 	static async getAll() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT 
 				t.*,
 				tt.name AS type_transaction_name,
@@ -18,11 +18,11 @@ export class TransactionModel {
 			ORDER BY t.date_transaction DESC;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getAllOrder() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`-- Obtener información con filtro
 			SELECT 
 				tt.name AS type_transaction_name,
@@ -73,10 +73,10 @@ export class TransactionModel {
 			INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
-	static async getAllOrderFilter(key = "DATE", value = new Date()) {
+	static async getAllOrderFilter(key = 'DATE', value = new Date()) {
 		let query = `
         SELECT 
             tt.name AS type_transaction_name,
@@ -121,7 +121,7 @@ export class TransactionModel {
 			query += ` WHERE t.observation LIKE ? OR c.name LIKE ?`;
 			queryParams.push(`%${value}%`);
 			queryParams.push(`%${value}%`);
-		}
+		}		
 
 		query += ` GROUP BY tt.name, t.date_transaction
 				
@@ -149,14 +149,14 @@ export class TransactionModel {
 				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 				LEFT JOIN concepts c ON c.concept_id = t.concept_id
 				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`;
-		console.log(query);
+				console.log(query);
 
-		const { rows } = await connection.query(query, queryParams);
-		return rows;
+		const [transactions] = await connection.query(query, queryParams);
+		return transactions;
 	}
 
 	static async getRecents() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT 
 				t.*,
 				tt.name AS type_transaction_name,
@@ -173,11 +173,11 @@ export class TransactionModel {
 	 `
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getTransationById(id) {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT t.*, 
 						tt.name as type_transaction_name,
 						ad.name as account_destination,
@@ -188,15 +188,15 @@ export class TransactionModel {
 						LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 						LEFT JOIN concepts c ON c.concept_id = t.concept_id
 						INNER JOIN types_transactions tt on tt.type_transaction_id = c.type_transaction_id
-				WHERE t.transaction_id = $1`,
+				WHERE t.transaction_id = ?`,
 			[id]
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getTransationByCode(code) {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT t.*, 
 						tt.name as type_transaction_name,
 						ad.name as account_destination,
@@ -207,15 +207,15 @@ export class TransactionModel {
 						LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 						LEFT JOIN concepts c ON c.concept_id = t.concept_id
 						INNER JOIN types_transactions tt on tt.type_transaction_id = c.type_transaction_id
-				WHERE t.code_transaction = $1`,
+				WHERE t.code_transaction = ?`,
 			[code]
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getIncomeAndExpenseByAccounts() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT 
 					COALESCE(t.account_origin_id, t.account_destination_id) AS account_id,
 					a.name AS account_name,
@@ -226,11 +226,11 @@ export class TransactionModel {
 				GROUP BY COALESCE(t.account_origin_id, t.account_destination_id), a.name;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getRevenuesAndExpendituresGeneral() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`-- Total general
 			SELECT
 				NULL AS name,
@@ -250,13 +250,11 @@ export class TransactionModel {
 			`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getAvailable() {
-		const {
-			rows: [transactions],
-		} = await connection.query(
+		const [[transactions]] = await connection.query(
 			`SELECT SUM(balance) AS available FROM accounts;`
 		);
 
@@ -264,26 +262,26 @@ export class TransactionModel {
 	}
 
 	static async getBalanceByBank() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT b.name AS bank, SUM(a.balance) AS balance
 				FROM banks b
 				JOIN accounts a ON b.bank_id = a.bank_id
 				GROUP BY b.name;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getBalanceByAccount() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT a.name AS account, a.balance AS balance FROM accounts a;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async getIncomeExpenseByTransaction() {
-		const { rows } = await connection.query(
+		const [transactions] = await connection.query(
 			`SELECT tt.name AS type_transaction, COUNT(t.transaction_id) AS total_transactions, SUM(t.amount) AS total_amount
 				FROM transactions t
 				LEFT JOIN concepts c ON c.concept_id = t.concept_id
@@ -291,7 +289,7 @@ export class TransactionModel {
 				GROUP BY tt.name;`
 		);
 
-		return rows;
+		return transactions;
 	}
 
 	static async create({
@@ -306,8 +304,8 @@ export class TransactionModel {
 	}) {
 		date_transaction = convertDateToSaveDB(date_transaction);
 
-		const { rows } = await connection.query(
-			`INSERT INTO transactions (code_transaction, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+		const [transaction] = await connection.query(
+			`INSERT INTO transactions (code_transaction, date_transaction, amount, concept_id, observation, account_origin_id, account_destination_id) VALUES (?, ?, ?, ?, ?, ?, ?);`,
 			[
 				code_transaction,
 				date_transaction,
@@ -320,6 +318,6 @@ export class TransactionModel {
 			]
 		);
 
-		return rows;
+		return transaction;
 	}
 }
