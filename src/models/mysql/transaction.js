@@ -149,7 +149,6 @@ export class TransactionModel {
 				LEFT JOIN accounts ad ON ad.account_id = t.account_destination_id
 				LEFT JOIN concepts c ON c.concept_id = t.concept_id
 				INNER JOIN types_transactions tt ON tt.type_transaction_id = c.type_transaction_id;`;
-				console.log(query);
 
 		const [transactions] = await connection.query(query, queryParams);
 		return transactions;

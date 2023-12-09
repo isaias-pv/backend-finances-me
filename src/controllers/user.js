@@ -1,6 +1,7 @@
 import { validate, validatePartial } from "../schemas/user.js";
 import { searchByName } from "../schemas/general.js";
 import { UserModel } from "./../models/mysql/user.js";
+import { encrypt } from "../utils/encrypt.js";
 
 export class UserController {
 	constructor() {
@@ -41,12 +42,21 @@ export class UserController {
 		const result = validate(req.body);
 
 		if (!result.success) {
-			return res
-				.status(400)
-				.json({ error: JSON.parse(result.error.msg) });
+			return res.status(400).json({ error: result.error.errors });
 		}
 
-		const account = await this.model.create(result.data);
+		const user = await this.model.searchByName(result.data.username);
+
+		if (user.length > 0) {
+			return res.status(400).json({ msg: "El usuario existe" });
+		}
+
+		const password_encrypt = await encrypt(result.data.password);
+
+		const account = await this.model.create({
+			...result.data,
+			password: password_encrypt,
+		});
 
 		return res.status(201).json({ msg: "Usuario creado correctamente" });
 	};

@@ -16,9 +16,10 @@ export class UserModel {
 		return users;
 	}
 
-	static async searchByName(name) {
+	static async searchByName(name = '') {
+		name = `%${name}%`
 		const [users] = await connection.query(
-			`SELECT * FROM users WHERE name LIKE ('%?%') OR username ('%?%');`,
+			`SELECT * FROM users WHERE name LIKE (?) OR username LIKE (?);`,
 			[name, name]
 		);
 

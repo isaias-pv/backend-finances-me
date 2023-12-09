@@ -9,8 +9,6 @@ export async function encrypt(text) {
 				reject(err);
 				return;
 			}
-
-			console.log(hash);
 			resolve(hash);
 		});
 	});
