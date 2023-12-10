@@ -7,8 +7,8 @@ const DEFAULT_CONFIG = {
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
 };
-const connectionString = process.env.DATABASE_URL ?? DEFAULT_CONFIG;
+// const connectionString = process.env.DATABASE_URL ?? DEFAULT_CONFIG;
 
-const connection = await mysql.createConnection(connectionString);
+const connection = await mysql.createConnection(DEFAULT_CONFIG);
 
 export { connection };

@@ -231,21 +231,76 @@ export class TransactionModel {
 	static async getRevenuesAndExpendituresGeneral() {
 		const [transactions] = await connection.query(
 			`-- Total general
-			SELECT
-				NULL AS name,
+			SELECT 'TOTAL' AS name,
 				SUM(amount) AS total
 			FROM transactions
-			
+			WHERE MONTH(date_transaction) = MONTH(NOW())
+				AND YEAR(date_transaction) = YEAR(NOW())
 			UNION
-			
 			-- Totales por tipo de transacción
-			SELECT
-				tt.name as name,
+			SELECT tt.name as name,
 				SUM(t.amount) AS total
 			FROM transactions t
-			LEFT JOIN concepts c ON c.concept_id = t.concept_id
-			JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id 
-			GROUP BY COALESCE(c.type_transaction_id), tt.name;
+				LEFT JOIN concepts c ON c.concept_id = t.concept_id
+				JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id
+			WHERE MONTH(t.date_transaction) = MONTH(NOW())
+				AND YEAR(t.date_transaction) = YEAR(NOW())
+			GROUP BY COALESCE(c.type_transaction_id),
+				tt.name;
+			
+				-- SELECT (
+				--     SELECT COALESCE(SUM(t.amount), 0)
+				--     FROM transactions t
+				--         JOIN concepts c ON c.concept_id = t.concept_id
+				--         JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id
+				--     WHERE tt.name = 'INCOME' AND MONTH(t.date_transaction) = MONTH(NOW()) AND YEAR(t.date_transaction) = YEAR(NOW())
+				-- ) AS total_income,
+				-- (
+				--     SELECT COALESCE(SUM(t.amount), 0)
+				--     FROM transactions t
+				--         JOIN concepts c ON c.concept_id = t.concept_id
+				--         JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id
+				--     WHERE tt.name = 'EGRESS' AND MONTH(t.date_transaction) = MONTH(NOW()) AND YEAR(t.date_transaction) = YEAR(NOW())
+				-- ) AS total_egress,
+				-- (
+				--     SELECT COALESCE(
+				--             SUM(
+				--                 CASE
+				--                     WHEN tt.name = 'INCOME' THEN t.amount
+				--                     ELSE 0
+				--                 END
+				--             ),
+				--             0
+				--         ) - COALESCE(
+				--             SUM(
+				--                 CASE
+				--                     WHEN tt.name = 'EGRESS' THEN t.amount
+				--                     ELSE 0
+				--                 END
+				--             ),
+				--             0
+				--         )
+				--     FROM transactions t
+				--         JOIN concepts c ON c.concept_id = t.concept_id
+				--         JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id
+				--         WHERE MONTH(t.date_transaction) = MONTH(NOW()) AND YEAR(t.date_transaction) = YEAR(NOW())
+				-- ) AS difference;
+			
+				-- SELECT 
+				-- (SELECT COALESCE(SUM(t.amount), 0) FROM transactions t
+				--     JOIN concepts c ON c.concept_id = t.concept_id
+				--     JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id 
+				--     WHERE tt.name = 'INCOME') AS total_income,
+				-- (SELECT COALESCE(SUM(t.amount), 0) FROM transactions t
+				--     JOIN concepts c ON c.concept_id = t.concept_id
+				--     JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id 
+				--     WHERE tt.name = 'EGRESS') AS total_egress,
+				-- (SELECT COALESCE(SUM(CASE WHEN tt.name = 'INCOME' THEN t.amount ELSE 0 END), 0) - 
+				--  COALESCE(SUM(CASE WHEN tt.name = 'EGRESS' THEN t.amount ELSE 0 END), 0)
+				-- FROM transactions t
+				-- JOIN concepts c ON c.concept_id = t.concept_id
+				-- JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id) AS difference;			
+			
 			`
 		);
 

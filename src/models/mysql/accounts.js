@@ -2,7 +2,45 @@ import { connection } from "./query.js";
 
 export class AccountModel {
 	static async getAll() {
-		const [accounts] = await connection.query(`SELECT a.*, b.name as name_bank FROM accounts a INNER JOIN banks b ON a.bank_id = b.bank_id ORDER by a.created_at;`);
+		const [accounts] = await connection.query(`
+		SELECT a.account_id,
+		a.name,
+		b.bank_id,
+		b.name as bank_name,
+		a.balance,
+		SUM(
+			CASE
+				WHEN tt.name = 'INCOME' THEN t.amount
+				ELSE 0
+			END
+		) AS income,
+		SUM(
+			CASE
+				WHEN tt.name = 'EGRESS' THEN t.amount
+				ELSE 0
+			END
+		) AS egress,
+		SUM(
+			CASE
+				WHEN tt.name = 'INCOME' THEN t.amount
+				ELSE 0
+			END
+		) - SUM(
+			CASE
+				WHEN tt.name = 'EGRESS' THEN t.amount
+				ELSE 0
+			END
+		) AS difference,
+		a.created_at,
+		a.creator_user_id
+	FROM transactions t
+		LEFT JOIN concepts c ON c.concept_id = t.concept_id
+		JOIN types_transactions tt ON COALESCE(tt.type_transaction_id, tt.name) = c.type_transaction_id
+		RIGHT JOIN accounts a ON a.account_id = t.account_origin_id
+		OR a.account_id = t.account_destination_id
+		INNER JOIN banks b ON a.bank_id = b.bank_id
+	GROUP BY a.account_id
+	ORDER by a.created_at;`);
 
 		return accounts;
 	}
