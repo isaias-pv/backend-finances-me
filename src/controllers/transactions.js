@@ -182,6 +182,7 @@ export class TransactionController {
 
 		const insertEgress = await this.model.create({
 			...resultValidation.data,
+			account_origin_id: null,
 			concept_id: 1,
 			code_transaction,
 		});
@@ -189,6 +190,7 @@ export class TransactionController {
 		if (insertEgress) {
 			const insertIncome = await this.model.create({
 				...resultValidation.data,
+				account_destination_id: null,
 				concept_id: 2,
 				code_transaction,
 			});
